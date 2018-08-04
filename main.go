@@ -15,12 +15,14 @@ var port int
 var parallelCounts int
 var verbose int
 var timeOut int64
+var protocol string
 
 func init() {
     flag.IntVar(&port, "p", 5555, "检测的端口")
     flag.IntVar(&parallelCounts, "n", 10, "线程数")
     flag.IntVar(&verbose, "v", 0, "打印进度")
     flag.Int64Var(&timeOut, "t", 1500, "检测超时时间，毫秒")
+    flag.StringVar(&protocol, "c", "tcp", "检测协议，tcp 或者 udp")
 
     // 修改提示信息
     flag.Usage = func() {
@@ -42,7 +44,8 @@ func checkPort(ip net.IP, port int, wg *sync.WaitGroup, parallelChan *chan int) 
     if verbose > 0 {
         fmt.Println("checking " + target)
     }
-    conn, err := net.DialTimeout("tcp", target, time.Millisecond*time.Duration(timeOut))
+
+    conn, err := net.DialTimeout(protocol, target, time.Millisecond*time.Duration(timeOut))
     if err == nil {
         printOpeningPort(ip, port)
         conn.Close()
@@ -57,6 +60,10 @@ func main() {
         flag.Usage()
 
         return
+    }
+
+    if protocol != "udp" {
+        protocol = "tcp"
     }
 
     ips := IPgo.Iplist(flag.Arg(0))
