@@ -16,12 +16,16 @@ Usage: pingo -[prnv] <ip地址/网段>
 
 Options:
 
+  -c string
+		检测协议，tcp 或者 udp (default "tcp")
   -n int
-    	线程数 (default 10)
+		线程数 (default 10)
   -p int
-    	检测的端口 (default 5555)
+		检测的端口 (default 5555)
+  -t int
+		检测超时时间，毫秒 (default 1500)
   -v int
-    	打印进度
+		打印进度
 
 ```
 
@@ -43,4 +47,5 @@ checking 192.168.50.10:80
 ```
 pingo -p 80 -n 10 -v 1 192.168.50.1
 pingo -t 1000 192.168.50.1
+pingo -c udp 192.168.50.1
 ```
