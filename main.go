@@ -14,15 +14,17 @@ import (
 var port int
 var parallelCounts int
 var verbose int
+var timeOut int64
 
 func init() {
     flag.IntVar(&port, "p", 5555, "检测的端口")
     flag.IntVar(&parallelCounts, "n", 10, "线程数")
     flag.IntVar(&verbose, "v", 0, "打印进度")
+    flag.Int64Var(&timeOut, "t", 1500, "检测超时时间，毫秒")
 
     // 修改提示信息
     flag.Usage = func() {
-        fmt.Fprintf(os.Stderr, "简单的TCP端口扫描器 pingo\nUsage: %s -[prn] <ip地址/网段>\n\nOptions:\n\n", "pingo")
+        fmt.Fprintf(os.Stderr, "简单的TCP端口扫描器 pingo\nUsage: %s -[pnvt] <ip地址/网段>\n\nOptions:\n\n", "pingo")
         flag.PrintDefaults()
     }
     flag.Parse()
@@ -33,16 +35,14 @@ func printOpeningPort(ip net.IP, port int) {
 }
 
 func checkPort(ip net.IP, port int, wg *sync.WaitGroup, parallelChan *chan int) {
+    defer wg.Done()
 
     target := ip.String() + ":" + strconv.Itoa(port)
 
     if verbose > 0 {
         fmt.Println("checking " + target)
     }
-
-    defer wg.Done()
-
-    conn, err := net.DialTimeout("tcp", target, time.Second*1)
+    conn, err := net.DialTimeout("tcp", target, time.Millisecond*time.Duration(timeOut))
     if err == nil {
         printOpeningPort(ip, port)
         conn.Close()
