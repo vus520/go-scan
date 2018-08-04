@@ -62,7 +62,7 @@ func main() {
     ips := IPgo.Iplist(flag.Arg(0))
 
     if len(ips) == 1 && ips[0] == "<nil>" {
-        fmt.Println("请输入 IP地址 或 CIDR掩码\n\n")
+        fmt.Println("目标IP无法识别，请输入 IP地址 或 CIDR掩码\n\n")
         flag.Usage()
         return
     }
