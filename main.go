@@ -22,7 +22,7 @@ func init() {
 
     // 修改提示信息
     flag.Usage = func() {
-        fmt.Fprintf(os.Stderr, "\nUsage: %s -[prnv] <ip地址/网段>\n\nOptions:\n\n", "pingo")
+        fmt.Fprintf(os.Stderr, "简单的TCP端口扫描器 pingo\nUsage: %s -[prn] <ip地址/网段>\n\nOptions:\n\n", "pingo")
         flag.PrintDefaults()
     }
     flag.Parse()
@@ -55,18 +55,27 @@ func main() {
 
     if len(args) != 1 {
         flag.Usage()
-    } else {
-        ips := IPgo.Iplist(flag.Arg(0))
 
-        // 用于协程任务控制
-        wg := sync.WaitGroup{}
-        parallelChan := make(chan int, parallelCounts)
-        for i := 0; i < len(ips); i++ {
-            ip := net.ParseIP(ips[i])
-            wg.Add(1)
-            parallelChan <- 1
-            go checkPort(ip, port, &wg, &parallelChan)
-        }
-        wg.Wait()
+        return
     }
+
+    ips := IPgo.Iplist(flag.Arg(0))
+
+    if len(ips) == 1 && ips[0] == "<nil>" {
+        fmt.Println("请输入 IP地址 或 CIDR掩码\n\n")
+        flag.Usage()
+        return
+    }
+
+    // 用于协程任务控制
+    wg := sync.WaitGroup{}
+    parallelChan := make(chan int, parallelCounts)
+    for i := 0; i < len(ips); i++ {
+        ip := net.ParseIP(ips[i])
+        wg.Add(1)
+        parallelChan <- 1
+        go checkPort(ip, port, &wg, &parallelChan)
+    }
+    wg.Wait()
+
 }
