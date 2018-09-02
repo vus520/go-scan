@@ -49,3 +49,10 @@ pingo -p 80 -n 10 -v 1 192.168.50.1
 pingo -t 1000 192.168.50.1
 pingo -c udp 192.168.50.1
 ```
+
+### 循环执行
+
+```
+while ( true ) do ./pingo -p 80 -c 10 192.168.1.0/24 | awk '{print $1;system ("curl -I " $1)}'; done
+while ( true ) do ./pingo -p 5555 -c 10 192.168.1.0/24 | awk '{print $1;system ("adb connect " $1)}'; done
+```
